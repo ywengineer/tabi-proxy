@@ -1,7 +1,7 @@
 #import "SOCKSServer.h"
 #import "NetworkObserver.h"
 
-@interface RootViewController : UIViewController<SOCKSServerDelegate, NetworkObserverDelegate> {
+@interface RootViewController : UIViewController<SOCKSServerDelegate, NetworkObserverDelegate, NSNetServiceDelegate> {
     NetworkObserver *networkObserver;
     SOCKSServer *socksServer;
     NSNetService *netService;
@@ -19,5 +19,8 @@
 @property (nonatomic, retain) NSArray *LANIPs;
 
 - (IBAction)switchSOCKSServer:(id)sender;
+- (void)startSOCKSServer;
+- (void)stopSOCKSServer;
+- (BOOL)isSOCKSServerRunning;
 
 @end
