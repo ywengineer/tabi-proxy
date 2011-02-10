@@ -13,7 +13,7 @@
 @implementation TabiAppDelegate
 
 @synthesize window;
-@synthesize navigationController;
+@synthesize navigationController, rootViewController;
 @synthesize screenSaverTimer;
 
 
@@ -65,6 +65,20 @@
     [window makeKeyAndVisible];
     
     self.screenSaverTimer = [NSTimer scheduledTimerWithTimeInterval:SCREEN_SAVER_TIMEOUT target:self selector:@selector(screenSaverTimerFired:) userInfo:nil repeats:NO];
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    BOOL SOCKSServerIsRunning = [rootViewController isSOCKSServerRunning];
+    [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithBool:SOCKSServerIsRunning] forKey:@"SOCKSServerWasRunning"];
+    if (SOCKSServerIsRunning) {
+        [rootViewController stopSOCKSServer];
+    }
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"SOCKSServerWasRunning"]) {
+        [rootViewController startSOCKSServer];
+    }
 }
 
 

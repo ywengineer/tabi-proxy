@@ -12,7 +12,7 @@
 #import <net/if.h>
 
 
-@interface SOCKSConnection : Actor {
+@interface SOCKSConnection : Actor<NSStreamDelegate> {
     id<SOCKSConnectionDelegate>delegate;
 
     NSString *clientHost, *targetHost;
@@ -40,10 +40,9 @@
 @property (nonatomic, retain) NSMutableData *toClientData, *toTargetData;
 
 
-- (id)initWithClientHost:(NSString *)host 
-              clientPort:(NSUInteger)port
-             inputStream:(NSInputStream *)input 
-            outputStream:(NSOutputStream *)output;
+- (id)initWithClientHost:(NSString *)host clientPort:(NSUInteger)port inputStream:(NSInputStream *)input outputStream:(NSOutputStream *)output;
+
+- (void)establishConnectionWithTarget;
 
 @end
 
@@ -57,10 +56,7 @@
 @synthesize toClientData, toTargetData;
 @synthesize isValid;
 
-- (id)initWithClientHost:(NSString *)host 
-              clientPort:(NSUInteger)port
-             inputStream:(NSInputStream *)input
-            outputStream:(NSOutputStream *)output {
+- (id)initWithClientHost:(NSString *)host clientPort:(NSUInteger)port inputStream:(NSInputStream *)input outputStream: (NSOutputStream *)output {
     if (self = [super init]) {
         self.clientHost = host;
         self.clientPort = port;
@@ -195,7 +191,7 @@
         return;
     }
     
-    NSStream *streamPeer = (aStream == clientInputStream || aStream == clientOutputStream) ? 
+    NSString *streamPeer = (aStream == clientInputStream || aStream == clientOutputStream) ? 
                             @"client" : (aStream == targetInputStream || aStream == targetOutputStream) ? 
                             @"target" : nil;
 //    NSLog(@"conn. %@ stream: %@ fired event", streamPeer, theStream);
@@ -280,7 +276,6 @@
               aStream, 
               [aStream streamStatus], 
               [[aStream streamError] localizedDescription]);
-        
         [self invalidate];
         return;
     }
@@ -321,7 +316,7 @@
     
     // field 3: Auth methods
     uint8_t authMethods[authMethodsNum];
-    if (sizeof authMethods != [clientInputStream read:authMethods maxLength:sizeof authMethods]) {
+    if (sizeof(authMethods) != [clientInputStream read:authMethods maxLength:sizeof(authMethods)]) {
         NSLog(@"conn. Could not read auth methods");
         [self invalidate];
         return;
@@ -348,11 +343,7 @@
 //    NSLog(@"conn. Response to client: %@", toClientData);
 }
 
-BOOL getTargetInfoFromRequestFragment(NSInputStream *inputStream, 
-                                      NSString **host, 
-                                      NSUInteger *port, 
-                                      NSMutableData **fragmentData, 
-                                      NSString **errorStr) {
+BOOL getTargetInfoFromRequestFragment(NSInputStream *inputStream, NSString **host, NSUInteger *port, NSMutableData **fragmentData, NSString **errorStr) {
     // request's field 4: address type
     uint8_t addressType;
     if (1 != [inputStream read:&addressType maxLength:1]) {
@@ -365,13 +356,13 @@ BOOL getTargetInfoFromRequestFragment(NSInputStream *inputStream,
     if (0x01 == addressType) { // IPv4 address, 4 bytes
 //        NSLog(@"conn. Reading IPv4 address...");
         uint8_t dataBuffer[4];
-        if (sizeof dataBuffer != [inputStream read:dataBuffer maxLength:sizeof dataBuffer]) {
+        if (sizeof(dataBuffer) != [inputStream read:dataBuffer maxLength:sizeof(dataBuffer)]) {
             *errorStr = @"Could not read IPv4 address";
             return NO;
         }
         
         char ip[INET_ADDRSTRLEN];
-        *host = [NSString stringWithCString:inet_ntop(AF_INET, dataBuffer, ip, sizeof ip) encoding:NSUTF8StringEncoding];
+        *host = [NSString stringWithCString:inet_ntop(AF_INET, dataBuffer, ip, sizeof(ip)) encoding:NSUTF8StringEncoding];
         [data appendBytes:dataBuffer length:sizeof dataBuffer];
         
 //        NSLog(@"conn. Target host as IPv4 address: %@, data: %@", targetHost, fragmentData);
@@ -384,12 +375,11 @@ BOOL getTargetInfoFromRequestFragment(NSInputStream *inputStream,
             return NO;
         }
         uint8_t domainName[nameLength];
-        if (sizeof domainName != [inputStream read:domainName maxLength:sizeof domainName]) {
+        if (sizeof(domainName) != [inputStream read:domainName maxLength:sizeof(domainName)]) {
             *errorStr = @"Could not read domain name";
             return NO;
         }
-        
-        *host = [NSString stringWithCString:(char *)domainName length:nameLength];
+        *host = [[[NSString alloc] initWithBytes:domainName length:nameLength encoding:NSUTF8StringEncoding] autorelease];
         [data appendBytes:&nameLength length:1];
         [data appendBytes:domainName length:nameLength];
 //        NSLog(@"conn. Target host as domain name: %@, data: %@", targetHost, fragmentData);
@@ -476,11 +466,7 @@ BOOL getTargetInfoFromRequestFragment(NSInputStream *inputStream,
     NSMutableData *targetFragmentData;
     NSString *errorStr = nil;
     
-    if (!getTargetInfoFromRequestFragment(self.clientInputStream, 
-                                          &host, 
-                                          &port, 
-                                          &targetFragmentData, 
-                                          &errorStr)) {
+    if (!getTargetInfoFromRequestFragment(self.clientInputStream, &host, &port, &targetFragmentData, &errorStr)) {
         NSLog(@"conn. %@", errorStr);
         [self invalidate];
         return;
@@ -554,27 +540,17 @@ BOOL getTargetInfoFromRequestFragment(NSInputStream *inputStream,
     return self;
 }
 
-- (void)handleNewConnectionFromHost:(NSString *)peerHost 
-                               port:(uint16_t)peerPort
-                        inputStream:(NSInputStream *)inStream
-                       outputStream:(NSOutputStream *)outStream {
+- (void)handleNewConnectionFromHost:(NSString *)peerHost port:(uint16_t)peerPort inputStream:(NSInputStream *)inStream outputStream:(NSOutputStream *)outStream {
 //    NSLog(@"srv. Opening conn...");
     OnThread(workerThread, NO, ^{
-        SOCKSConnection *conn = [[[SOCKSConnection alloc] initWithClientHost:peerHost 
-                                                                  clientPort:peerPort
-                                                                 inputStream:inStream
-                                                                outputStream:outStream] autorelease];
+        SOCKSConnection *conn = [[[SOCKSConnection alloc] initWithClientHost:peerHost clientPort:peerPort inputStream:inStream outputStream:outStream] autorelease];
         conn.delegate = self;
         [conn start];
         [connections addObject:conn];
     });
 }
 
-static void SOCKSServerAcceptCallBack(CFSocketRef socket, 
-                                  CFSocketCallBackType type, 
-                                  CFDataRef address, 
-                                  const void *data,
-                                  void *info) {
+static void SOCKSServerAcceptCallBack(CFSocketRef socket, CFSocketCallBackType type, CFDataRef address, const void *data, void *info) {
     if (kCFSocketAcceptCallBack != type) {
         return;
     }
@@ -589,15 +565,13 @@ static void SOCKSServerAcceptCallBack(CFSocketRef socket,
             struct sockaddr_in *s = (struct sockaddr_in *)&addr; 
             port = ntohs(s->sin_port); 
             char ip[INET_ADDRSTRLEN];
-            host = [NSString stringWithCString:inet_ntop(AF_INET, &s->sin_addr, ip, sizeof ip) 
-                                      encoding:NSUTF8StringEncoding];
+            host = [NSString stringWithCString:inet_ntop(AF_INET, &s->sin_addr, ip, sizeof ip) encoding:NSUTF8StringEncoding];
         } 
         else { // AF_INET6 
             struct sockaddr_in6 *s = (struct sockaddr_in6 *)&addr; 
             port = ntohs(s->sin6_port); // XXX?
             char ip[INET6_ADDRSTRLEN];
-            host = [NSString stringWithCString:inet_ntop(AF_INET6, &s->sin6_addr, ip, sizeof ip) 
-                                      encoding:NSUTF8StringEncoding];
+            host = [NSString stringWithCString:inet_ntop(AF_INET6, &s->sin6_addr, ip, sizeof ip) encoding:NSUTF8StringEncoding];
         }   
     }
     // deal with both IPv4 and IPv6: 
@@ -605,19 +579,13 @@ static void SOCKSServerAcceptCallBack(CFSocketRef socket,
     
     CFReadStreamRef readStream = NULL;
     CFWriteStreamRef writeStream = NULL;
-    CFStreamCreatePairWithSocket(kCFAllocatorDefault, 
-                                 nativeSocketHandle, 
-                                 &readStream, 
-                                 &writeStream);
+    CFStreamCreatePairWithSocket(kCFAllocatorDefault, nativeSocketHandle, &readStream, &writeStream);
 
     if (readStream && writeStream) {
         CFReadStreamSetProperty(readStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
         CFWriteStreamSetProperty(writeStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
         SOCKSServer *server = (SOCKSServer *)info;
-        [server handleNewConnectionFromHost:host 
-                                       port:port 
-                                inputStream:(NSInputStream *)readStream
-                               outputStream:(NSOutputStream *)writeStream];
+        [server handleNewConnectionFromHost:host port:port inputStream:(NSInputStream *)readStream outputStream:(NSOutputStream *)writeStream];
     }
     else {
         close(nativeSocketHandle);
@@ -666,22 +634,12 @@ static void SOCKSServerAcceptCallBack(CFSocketRef socket,
         0, self, NULL, NULL, NULL
     };
     
-    if (NULL == (ipv4Socket = CFSocketCreate(kCFAllocatorDefault, 
-                                             PF_INET, 
-                                             SOCK_STREAM, 
-                                             IPPROTO_TCP, 
-                                             kCFSocketAcceptCallBack, 
-                                             (CFSocketCallBack)&SOCKSServerAcceptCallBack, 
-                                             &ctx))) {
+    if (NULL == (ipv4Socket = CFSocketCreate(kCFAllocatorDefault, PF_INET, SOCK_STREAM, IPPROTO_TCP, kCFSocketAcceptCallBack, (CFSocketCallBack)&SOCKSServerAcceptCallBack, &ctx))) {
         NSLog(@"srv. Could not create IPv4 socket: %s", strerror(errno));
     }
     else {
         int yes = 1;
-        setsockopt(CFSocketGetNative(ipv4Socket), 
-                   SOL_SOCKET, 
-                   SO_REUSEADDR, 
-                   (void *)&yes, 
-                   sizeof(yes));
+        setsockopt(CFSocketGetNative(ipv4Socket), SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes));
         // if port is 0 for IPv4, kernel chooses it for us
         struct sockaddr_in addr4;
         memset(&addr4, 0, sizeof(addr4));
@@ -707,22 +665,12 @@ static void SOCKSServerAcceptCallBack(CFSocketRef socket,
         }
     }
     
-    if (NULL == (ipv6Socket = CFSocketCreate(kCFAllocatorDefault, 
-                                             PF_INET6, 
-                                             SOCK_STREAM, 
-                                             IPPROTO_TCP, 
-                                             kCFSocketAcceptCallBack, 
-                                             (CFSocketCallBack)&SOCKSServerAcceptCallBack, 
-                                             &ctx))) {
+    if (NULL == (ipv6Socket = CFSocketCreate(kCFAllocatorDefault, PF_INET6, SOCK_STREAM, IPPROTO_TCP, kCFSocketAcceptCallBack, (CFSocketCallBack)&SOCKSServerAcceptCallBack, &ctx))) {
         NSLog(@"srv. Could not create IPv6 socket: %s", strerror(errno));
     }
     else {
         int yes = 1;
-        setsockopt(CFSocketGetNative(ipv6Socket), 
-                   SOL_SOCKET, 
-                   SO_REUSEADDR, 
-                   (void *)&yes, 
-                   sizeof(yes));
+        setsockopt(CFSocketGetNative(ipv6Socket), SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes));
         
         struct sockaddr_in6 addr6;
         memset(&addr6, 0, sizeof(addr6));

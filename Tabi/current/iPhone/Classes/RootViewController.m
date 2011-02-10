@@ -1,7 +1,6 @@
 #import "RootViewController.h"
 #import "BlocksAdditions.h"
 #import "CollectionsAdditions.h"
-//#import "JSON.h"
 #import "UIAppUtils.h"
 
 @implementation RootViewController
@@ -23,17 +22,26 @@
     NSLog(@"ctrl. Net service did stop");
 }
 
-- (IBAction)switchSOCKSServer:(id)sender {
+- (void)startSOCKSServer {
+    if (![LANIPs count]) {
+//        showAlert(@"Error", @"Network is not ready yet.");
+        return;
+    }
+    [socksServer start];
+}
+
+- (void)stopSOCKSServer {
     if ([socksServer isRunning]) {
         [socksServer stop];
     }
-    else {
-        if (![LANIPs count]) {
-            showAlert(@"Error", @"Network is not ready yet.");
-            return;
-        }
-        [socksServer start];
-    }
+}
+
+- (BOOL)isSOCKSServerRunning {
+    return [socksServer isRunning];
+}
+
+- (IBAction)switchSOCKSServer:(id)sender {
+    [socksServer isRunning] ? [self stopSOCKSServer] : [self startSOCKSServer];
 }
 
 - (void)updateInterfaceWithServerRunning:(BOOL)serverRunning {
@@ -82,10 +90,7 @@
         LANIPsHeaderLabel.frame = labelFrame;
         LANIPsHeaderLabel.text = text;
         
-        interfacesLookupIndicator.frame = CGRectMake(labelFrame.origin.x + labelFrame.size.width + 5, 
-                                                     labelFrame.origin.y, 
-                                                     interfacesLookupIndicator.frame.size.width, 
-                                                     interfacesLookupIndicator.frame.size.height);
+        interfacesLookupIndicator.frame = CGRectMake(labelFrame.origin.x + labelFrame.size.width + 5, labelFrame.origin.y, interfacesLookupIndicator.frame.size.width, interfacesLookupIndicator.frame.size.height);
         waiting ? [interfacesLookupIndicator startAnimating] : [interfacesLookupIndicator stopAnimating];
 
         LANIPsHeaderLabel.alpha = 1;
@@ -144,9 +149,7 @@
     
     if (0 != [newLANIPs count]) {
         socksServerSwitch.enabled = YES;
-        [self updateNetworkInterfacesHeaderWithLabelText:[self LANIPsHeaderTextWithAvailableIPsCount:[newLANIPs count]] 
-                                    andWaitingIndication:NO 
-                                                animated:NO];
+        [self updateNetworkInterfacesHeaderWithLabelText:[self LANIPsHeaderTextWithAvailableIPsCount:[newLANIPs count]] andWaitingIndication:NO animated:NO];
 
         if (![socksServer isRunning]) {
             [socksServer start];
@@ -154,9 +157,7 @@
     }
     else {
         socksServerSwitch.enabled = NO;
-        [self updateNetworkInterfacesHeaderWithLabelText:[self LANIPsHeaderTextWithAvailableIPsCount:[newLANIPs count]]
-                                    andWaitingIndication:YES 
-                                                animated:NO];
+        [self updateNetworkInterfacesHeaderWithLabelText:[self LANIPsHeaderTextWithAvailableIPsCount:[newLANIPs count]] andWaitingIndication:YES animated:NO];
         
         if ([socksServer isRunning]) {
             [socksServer stop];
@@ -238,10 +239,7 @@ to power source.";
     [networkObserver start];
     
     NSString *publishingName = [NSString stringWithFormat:@"Tabi SOCKS5 Server %@", [[UIDevice currentDevice] uniqueIdentifier]];
-    netService = [[NSNetService alloc] initWithDomain:@"local." 
-                                                 type:@"_socks5._tcp"
-                                                 name:publishingName 
-                                                 port:SOCKS_SERVER_PORT];
+    netService = [[NSNetService alloc] initWithDomain:@"local." type:@"_socks5._tcp" name:publishingName port:SOCKS_SERVER_PORT];
     [netService setDelegate:self];
 }
 
@@ -254,9 +252,7 @@ to power source.";
     LANIPsHeaderLabel.shadowOffset = CGSizeMake(.0, 1.0);
     LANIPsHeaderLabel.font = [UIFont boldSystemFontOfSize:17];
     
-    [self updateNetworkInterfacesHeaderWithLabelText:[self LANIPsHeaderTextWithAvailableIPsCount:[LANIPs count]] 
-                                andWaitingIndication:0 == [LANIPs count] 
-                                            animated:NO];
+    [self updateNetworkInterfacesHeaderWithLabelText:[self LANIPsHeaderTextWithAvailableIPsCount:[LANIPs count]] andWaitingIndication:0 == [LANIPs count] animated:NO];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -308,13 +304,6 @@ to power source.";
     }
     
     return cell;
-}
-
-- (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [aTableView deselectRowAtIndexPath:indexPath animated:NO];
-    
-    if (0 == indexPath.section && 0 == indexPath.row) {
-    }
 }
 
 - (void)dealloc {
