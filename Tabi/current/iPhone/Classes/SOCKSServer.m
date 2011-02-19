@@ -271,11 +271,7 @@
     }
     
     if (NSStreamEventErrorOccurred == streamEvent) {
-        NSLog(@"conn. %@ stream %@ error occured. Status: %d, error: %@. Stopping...", 
-              streamPeer, 
-              aStream, 
-              [aStream streamStatus], 
-              [[aStream streamError] localizedDescription]);
+        NSLog(@"conn. %@ stream %@ error occured. Status: %d, error: %@. Stopping...", streamPeer, aStream, [aStream streamStatus], [[aStream streamError] localizedDescription]);
         [self invalidate];
         return;
     }

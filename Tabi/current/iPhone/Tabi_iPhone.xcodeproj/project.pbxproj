@@ -20,7 +20,6 @@
 		672E839911067088001B2C10 /* UIAppUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 672E839811067088001B2C10 /* UIAppUtils.m */; };
 		672E83D211067B78001B2C10 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 672E83D111067B78001B2C10 /* SystemConfiguration.framework */; };
 		675A208B10FD51FB00816A08 /* SOCKSServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 675A208A10FD51FB00816A08 /* SOCKSServer.m */; };
-		675A2D431102F25D00816A08 /* PLBlocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 675A2D421102F25D00816A08 /* PLBlocks.framework */; };
 		678AD9FB112DD41500514633 /* EventNotifyingUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 678AD9FA112DD41500514633 /* EventNotifyingUIWindow.m */; };
 		678ADA65112E503300514633 /* ScreenSaverController.m in Sources */ = {isa = PBXBuildFile; fileRef = 678ADA63112E503300514633 /* ScreenSaverController.m */; };
 		678ADA66112E503300514633 /* ScreenSaverController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 678ADA64112E503300514633 /* ScreenSaverController.xib */; };
@@ -47,12 +46,11 @@
 		6711AB3B1108BDC60031EDE0 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		6718D12811099F0000F82F22 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		672A18FC11111BDE002D40F9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		672E839711067088001B2C10 /* UIAppUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIAppUtils.h; sourceTree = "<group>"; };
-		672E839811067088001B2C10 /* UIAppUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIAppUtils.m; sourceTree = "<group>"; };
+		672E839711067088001B2C10 /* UIAppUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIAppUtils.h; path = ../iPhone/UIAppUtils.h; sourceTree = "<group>"; };
+		672E839811067088001B2C10 /* UIAppUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIAppUtils.m; path = ../iPhone/UIAppUtils.m; sourceTree = "<group>"; };
 		672E83D111067B78001B2C10 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		675A208910FD51FB00816A08 /* SOCKSServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SOCKSServer.h; sourceTree = "<group>"; };
 		675A208A10FD51FB00816A08 /* SOCKSServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SOCKSServer.m; sourceTree = "<group>"; };
-		675A2D421102F25D00816A08 /* PLBlocks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PLBlocks.framework; sourceTree = "<group>"; };
 		678AD9F9112DD41500514633 /* EventNotifyingUIWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventNotifyingUIWindow.h; sourceTree = "<group>"; };
 		678AD9FA112DD41500514633 /* EventNotifyingUIWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventNotifyingUIWindow.m; sourceTree = "<group>"; };
 		678ADA62112E503300514633 /* ScreenSaverController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaverController.h; sourceTree = "<group>"; };
@@ -79,7 +77,6 @@
 			files = (
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				2892E4100DC94CBA00A64D0F /* CoreGraphics.framework in Frameworks */,
-				675A2D431102F25D00816A08 /* PLBlocks.framework in Frameworks */,
 				672E83D211067B78001B2C10 /* SystemConfiguration.framework in Frameworks */,
 				672A18FD11111BDE002D40F9 /* UIKit.framework in Frameworks */,
 			);
@@ -118,8 +115,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				672E839711067088001B2C10 /* UIAppUtils.h */,
-				672E839811067088001B2C10 /* UIAppUtils.m */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -156,7 +151,6 @@
 			children = (
 				672A18FC11111BDE002D40F9 /* UIKit.framework */,
 				672E83D111067B78001B2C10 /* SystemConfiguration.framework */,
-				675A2D421102F25D00816A08 /* PLBlocks.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				2892E40F0DC94CBA00A64D0F /* CoreGraphics.framework */,
 			);
@@ -176,6 +170,8 @@
 				678D0A2D113319BA00501B10 /* NetUtils.m */,
 				678D0A2E113319BA00501B10 /* NetworkObserver.h */,
 				678D0A2F113319BA00501B10 /* NetworkObserver.m */,
+				672E839711067088001B2C10 /* UIAppUtils.h */,
+				672E839811067088001B2C10 /* UIAppUtils.m */,
 			);
 			name = Common;
 			path = ../Common;
@@ -208,6 +204,7 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Tabi_iPhone" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -269,7 +266,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Vyacheslav Zakovyrya (BCSBCS3JG5)";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -279,10 +276,11 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Tabi_Prefix.pch;
-				GCC_VERSION = coop.plausible.blocks.compilers.gcc.4_2;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "Tabi-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.1;
 				PRODUCT_NAME = Tabi;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -291,7 +289,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Vyacheslav Zakovyrya (BCSBCS3JG5)";
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -299,10 +297,10 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Tabi_Prefix.pch;
-				GCC_VERSION = coop.plausible.blocks.compilers.gcc.4_2;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "Tabi-Info.plist";
 				PRODUCT_NAME = Tabi;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SDKROOT = iphoneos4.0;
 			};
 			name = Release;
 		};
