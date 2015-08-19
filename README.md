@@ -57,4 +57,4 @@ Do something about security. Option to 'connect' client machine to known iPhones
 Show traffic on the iPhone
 ???
 #Credits
-Snail icon is made by jordanfc
+Snail icon is made by [jordanfc](http://jordanfc.deviantart.com/art/full-size-snail-icon-150551795)
