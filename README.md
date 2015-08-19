@@ -31,14 +31,22 @@ Usage
 
 3. Connect to ad-hoc network created on step 2
 4. Launch Tabi app and wait...
+<p>
+![](https://github.com/ywengineer/tabi-proxy/blob/master/images/iPhone_waiting_for_network.PNG)
+![](https://github.com/ywengineer/tabi-proxy/blob/master/images/iPhone_ready.PNG)
+</p>
 whew... It's up and running. Now, switching attention back to Mac OS X
 
 ####Mac OS X
 
 5. If you choose Auto-Connect option, Tabi agent connects to proxy server running on iPhone by itself by changing network preferences:
-6. If you're curious you can see it for yourself by opening System Preferences -> Network -> Advanced (usually for AirPort interface) -> Proxies:
-7. After changes are made agent sends system-wide notification using Growl if available:
-
+<p>
+![](https://github.com/ywengineer/tabi-proxy/blob/master/images/Agent_menu.png)
+</p>
+If you're curious you can see it for yourself by opening System Preferences -> Network -> Advanced (usually for AirPort interface) -> Proxies:
+<p>![](https://github.com/ywengineer/tabi-proxy/blob/master/images/Proxy_Settings.png)</p>
+6. After changes are made agent sends system-wide notification using Growl if available:
+<p>![](https://github.com/ywengineer/tabi-proxy/blob/master/images/Growl_notification.png)</p>
 ###Known bugs
 
 1. Agent doesn't handle the case when user refuses to enter the password to unlock system preferences
